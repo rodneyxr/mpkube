@@ -4,19 +4,41 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
-            "name": "Launch Package",
+            "name": "list",
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "cmd/main.go",
+            "program": "main.go",
             "args": [
                 "list"
             ],
             "env": {},
             "cwd": "${workspaceFolder}",
             "stopOnEntry": false
+        },
+        {
+            "name": "kubeconfig",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "main.go",
+            "args": [
+                "kubeconfig",
+                "get",
+                "${input:name}"
+            ],
+            "env": {},
+            "cwd": "${workspaceFolder}",
+            "stopOnEntry": false
+        }
+    ],
+    "inputs": [
+        {
+            "id": "name",
+            "type": "promptString",
+            "description": "Enter the cluster name",
+            "default": "mpkube-default"
         }
     ]
 }

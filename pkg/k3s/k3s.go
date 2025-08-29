@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/rodneyxr/mpkube/pkg/multipass"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 // InstallK3s installs K3s on a multipass VM without traefik
@@ -18,7 +20,8 @@ func InstallK3s(mp *multipass.MultipassEnv, vmName string) error {
 
 	// Prepare the K3s install command with traefik disabled and advertise the VM's IP
 	k3sInstallCmd := fmt.Sprintf(
-		"curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"--disable=traefik --advertise-address=%s --node-ip=%s\" sh -",
+		// "curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"--disable=traefik --advertise-address=%s --node-ip=%s\" sh -",
+		"curl -sfL https://get.k3s.io | sh -s - --disable=traefik,metrics-server,local-path-provisioner --advertise-address=%s --node-ip=%s --write-kubeconfig-mode=0640 --write-kubeconfig-group=1000",
 		vm.IPv4, vm.IPv4,
 	)
 
@@ -76,13 +79,54 @@ func SaveKubeconfig(kubeconfig string, outputPath string) error {
 
 // MergeKubeconfigs combines multiple kubeconfigs into one
 func MergeKubeconfigs(kubeconfigs []string) (string, error) {
-	// TODO: Implement merging logic for multiple kubeconfigs
-	// For the MVP, we'll just return the first one
 	if len(kubeconfigs) == 0 {
 		return "", fmt.Errorf("no kubeconfigs provided")
 	}
 
-	return kubeconfigs[0], nil
+	merged := api.NewConfig()
+	for _, k := range kubeconfigs {
+		config, err := clientcmd.Load([]byte(k))
+		if err != nil {
+			return "", err
+		}
+		merged = mergeConfig(merged, config)
+	}
+
+	// Use clientcmd.Write to ensure proper kubeconfig format
+	bytes, err := clientcmd.Write(*merged)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
+}
+
+func mergeConfig(a, b *api.Config) *api.Config {
+	ret := *a
+	for k, v := range b.Clusters {
+		if _, ok := ret.Clusters[k]; !ok {
+			ret.Clusters[k] = v
+		}
+	}
+	for k, v := range b.AuthInfos {
+		if _, ok := ret.AuthInfos[k]; !ok {
+			ret.AuthInfos[k] = v
+		}
+	}
+	for k, v := range b.Contexts {
+		if _, ok := ret.Contexts[k]; !ok {
+			ret.Contexts[k] = v
+		}
+	}
+	for k, v := range b.Extensions {
+		if _, ok := ret.Extensions[k]; !ok {
+			ret.Extensions[k] = v
+		}
+	}
+	if ret.CurrentContext == "" {
+		ret.CurrentContext = b.CurrentContext
+	}
+	ret.Preferences = b.Preferences
+	return &ret
 }
 
 // normalizePath handles path conversion between Windows and WSL paths

@@ -62,7 +62,7 @@ func NewKubeconfigMergeCmd() *cobra.Command {
 		},
 	}
 
-	mergeCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file to save merged kubeconfig (prints to stdout if not specified)")
+	mergeCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Write kubeconfig to this file (prints to stdout if not specified)")
 
 	return mergeCmd
 }

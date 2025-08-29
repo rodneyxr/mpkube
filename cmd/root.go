@@ -5,7 +5,7 @@ import (
 )
 
 // Version is the CLI version
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // NewRootCmd creates the root command for the CLI
 func NewRootCmd() *cobra.Command {

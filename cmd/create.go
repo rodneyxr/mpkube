@@ -80,8 +80,8 @@ func createCluster(name string, cpus int, memory string, disk string) error {
 		"--disk", disk,
 	}
 
-	// For simplicity, use ubuntu 22.04 LTS
-	launchArgs = append(launchArgs, "22.04")
+	// For simplicity, use ubuntu 24.04 LTS
+	launchArgs = append(launchArgs, "24.04")
 
 	fmt.Println("Launching Multipass VM...")
 	output, err := mp.RunMultipassCmd(launchArgs...)
@@ -105,20 +105,12 @@ func createCluster(name string, cpus int, memory string, disk string) error {
 
 	fmt.Println("K3s installed successfully!")
 
-	// Get the kubeconfig
-	kubeconfig, err := k3s.GetKubeconfig(mp, name)
-	if err != nil {
-		return fmt.Errorf("failed to get kubeconfig: %w", err)
-	}
-
 	fmt.Println("\nCluster created successfully!")
 	fmt.Printf("Cluster name: %s\n", name)
 	fmt.Printf("Cluster IP: %s\n", vm.IPv4)
-	fmt.Println("\nUse the following command to access the cluster:")
-	fmt.Printf("export KUBECONFIG=<path/to/save/config>\n")
+	fmt.Println("\nUse the following commands to access the cluster:")
+	fmt.Printf("export KUBECONFIG=~/.kube/mpkube/kubeconfig-%s\n", name)
 	fmt.Printf("mpkube kubeconfig get %s -o $KUBECONFIG\n", name)
-	fmt.Println("\nOr use the kubeconfig directly:")
-	fmt.Println(kubeconfig)
 
 	return nil
 }

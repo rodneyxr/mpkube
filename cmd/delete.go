@@ -12,7 +12,7 @@ import (
 
 // NewDeleteCmd creates a command to delete a k3s cluster
 func NewDeleteCmd() *cobra.Command {
-	var force bool
+	var confirm bool
 
 	deleteCmd := &cobra.Command{
 		Use:   "delete [name]",
@@ -21,18 +21,18 @@ func NewDeleteCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
-			return deleteCluster(name, force)
+			return deleteCluster(name, confirm)
 		},
 	}
 
 	// Add flags
-	deleteCmd.Flags().BoolVarP(&force, "force", "f", false, "Force deletion without confirmation")
+	deleteCmd.Flags().BoolVarP(&confirm, "confirm", "c", false, "Confirm without prompting.")
 
 	return deleteCmd
 }
 
 // deleteCluster deletes a k3s cluster by removing the Multipass VM
-func deleteCluster(name string, force bool) error {
+func deleteCluster(name string, confirm bool) error {
 	mp, err := multipass.NewMultipassEnv()
 	if err != nil {
 		return fmt.Errorf("failed to initialize multipass environment: %w", err)
@@ -49,8 +49,8 @@ func deleteCluster(name string, force bool) error {
 		return fmt.Errorf("cluster '%s' not found: %w", name, err)
 	}
 
-	// Confirmation unless force flag is used
-	if !force {
+	// Confirmation unless confirm flag is used
+	if !confirm {
 		fmt.Printf("Are you sure you want to delete cluster '%s' (IP: %s)? [y/N]: ", vm.Name, vm.IPv4)
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
