@@ -21,7 +21,7 @@ func InstallK3s(mp *multipass.MultipassEnv, vmName string) error {
 	// Prepare the K3s install command with traefik disabled and advertise the VM's IP
 	k3sInstallCmd := fmt.Sprintf(
 		// "curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=\"--disable=traefik --advertise-address=%s --node-ip=%s\" sh -",
-		"curl -sfL https://get.k3s.io | sh -s - --disable=traefik,metrics-server,local-path-provisioner --advertise-address=%s --node-ip=%s --write-kubeconfig-mode=0640 --write-kubeconfig-group=1000",
+		"curl -sfL https://get.k3s.io | sh -s - --disable=traefik,metrics-server,local-storage,servicelb --advertise-address=%s --node-ip=%s --write-kubeconfig-mode=0640 --write-kubeconfig-group=1000",
 		vm.IPv4, vm.IPv4,
 	)
 

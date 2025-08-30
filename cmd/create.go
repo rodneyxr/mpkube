@@ -32,9 +32,9 @@ func NewCreateCmd() *cobra.Command {
 	}
 
 	// Add flags for customizing the VM
-	createCmd.Flags().IntVarP(&cpus, "cpus", "c", 2, "Number of CPUs for the VM")
-	createCmd.Flags().StringVarP(&memory, "memory", "m", "2G", "Memory allocation for the VM")
-	createCmd.Flags().StringVarP(&disk, "disk", "d", "10G", "Disk space for the VM")
+	createCmd.Flags().IntVarP(&cpus, "cpus", "c", 4, "Number of CPUs for the VM")
+	createCmd.Flags().StringVarP(&memory, "memory", "m", "8G", "Memory allocation for the VM")
+	createCmd.Flags().StringVarP(&disk, "disk", "d", "16G", "Disk space for the VM")
 	createCmd.Flags().StringVar(&name, "name", "", "Name for the cluster (defaults to mpkube-<random> or mpkube-default if first cluster)")
 
 	return createCmd
